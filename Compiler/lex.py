@@ -1,0 +1,70 @@
+# lex.py
+
+import re
+from dataclasses import dataclass
+
+@dataclass
+class Token:
+    type: str
+    value: str
+
+TOKEN_REGEX = [
+    ("LET",      r"\blet\b"),
+    ("PRINT",    r"\bprint\b"),
+    ("NUMBER",   r"\b\d+\b"),
+    ("IDENT",    r"\b[a-zA-Z_][a-zA-Z0-9_]*\b"),
+    ("PLUS",     r"\+"),
+    ("EQUAL",    r"="),
+    ("LPAREN",   r"\("),
+    ("RPAREN",   r"\)"),
+    ("NEWLINE",  r"\n"),
+    ("SKIP",     r"[ \t]+"),
+    ("MISMATCH", r"."),
+]
+
+master_pattern = "|".join(
+    f"(?P<{name}>{pattern})"
+    for name, pattern in TOKEN_REGEX
+)
+
+def lexer(code):
+    for match in re.finditer(master_pattern, code):
+        kind = match.lastgroup
+        value = match.group()
+
+        # Pattern Matching
+        match kind:
+            case "SKIP":
+                continue
+
+            case "NEWLINE":
+                yield Token("NEWLINE", "\\n")
+
+            case "LET":
+                yield Token("LET", value)
+
+            case "PRINT":
+                yield Token("PRINT", value)
+
+            case "NUMBER":
+                yield Token("NUMBER", value)
+
+            case "IDENT":
+                yield Token("IDENT", value)
+
+            case "PLUS":
+                yield Token("PLUS", value)
+
+            case "EQUAL":
+                yield Token("EQUAL", value)
+
+            case "LPAREN":
+                yield Token("LPAREN", value)
+
+            case "RPAREN":
+                yield Token("RPAREN", value)
+
+            case "MISMATCH":
+                raise SyntaxError(f"Karakter tidak dikenal: {value}")
+
+
