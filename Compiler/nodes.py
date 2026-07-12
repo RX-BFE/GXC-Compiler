@@ -7,6 +7,10 @@ class Number:
     value: int
 
 @dataclass
+class String:
+    value: str
+
+@dataclass
 class Identifier:
     name: str
 
@@ -15,6 +19,16 @@ class BinaryOp:
     left: object
     op: str
     right: object
+
+@dataclass
+class FunctionCall:
+    name: str
+    args: list
+
+@dataclass
+class Index:
+    target: object
+    index: object
 
 
 # ===== Statements =====

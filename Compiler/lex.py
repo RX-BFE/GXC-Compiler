@@ -13,10 +13,13 @@ TOKEN_REGEX = [
     ("PRINT",    r"\bprint\b"),
     ("NUMBER",   r"\b\d+\b"),
     ("IDENT",    r"\b[a-zA-Z_][a-zA-Z0-9_]*\b"),
+    ("STRING",   r'"[^"]*"'),
     ("PLUS",     r"\+"),
     ("EQUAL",    r"="),
     ("LPAREN",   r"\("),
     ("RPAREN",   r"\)"),
+    ("LBRACKET", r"\["),
+    ("RBRACKET", r"\]"),
     ("NEWLINE",  r"\n"),
     ("SKIP",     r"[ \t]+"),
     ("MISMATCH", r"."),
@@ -52,6 +55,9 @@ def lexer(code):
             case "IDENT":
                 yield Token("IDENT", value)
 
+            case "STRING":
+                yield Token("STRING", value)
+
             case "PLUS":
                 yield Token("PLUS", value)
 
@@ -63,6 +69,12 @@ def lexer(code):
 
             case "RPAREN":
                 yield Token("RPAREN", value)
+
+            case "LBRACKET":
+                yield Token("LBRACKET", value)
+
+            case "RBRACKET":
+                yield Token("RBRACKET", value)
 
             case "MISMATCH":
                 raise SyntaxError(f"Karakter tidak dikenal: {value}")

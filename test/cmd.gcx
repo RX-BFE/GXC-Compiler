@@ -1,0 +1,2 @@
+let arg_count = get_args()
+print(arg_count)

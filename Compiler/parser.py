@@ -116,16 +116,39 @@ class Parser:
     # ----------------------
 
     def term(self):
-        """Parse atomic expressions (numbers and identifiers)."""
+        """Parse atomic expressions (numbers, strings, identifiers, function calls, and index operations)."""
         token = self.current()
-        
+
         if token is None:
             raise SyntaxError("Unexpected EOF in expression")
 
         if token.type == "NUMBER":
             return Number(int(self.eat("NUMBER").value))
+        elif token.type == "STRING":
+            # Remove quotes from string literal
+            str_value = self.eat("STRING").value
+            return String(str_value[1:-1])  # Remove surrounding quotes
         elif token.type == "IDENT":
-            return Identifier(self.eat("IDENT").value)
+            ident = Identifier(self.eat("IDENT").value)
+
+            # Check for function call: ident()
+            if self.current() and self.current().type == "LPAREN":
+                self.eat("LPAREN")
+                args = []
+                # Parse arguments if present
+                if self.current() and self.current().type != "RPAREN":
+                    args.append(self.expression())
+                self.eat("RPAREN")
+                return FunctionCall(ident.name, args)
+
+            # Check for index operation: ident[expr]
+            elif self.current() and self.current().type == "LBRACKET":
+                self.eat("LBRACKET")
+                index_expr = self.expression()
+                self.eat("RBRACKET")
+                return Index(ident, index_expr)
+
+            return ident
         else:
             raise SyntaxError(
                 f"Unexpected token {token.type} in expression at position {self.pos}"
