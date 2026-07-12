@@ -1,37 +1,43 @@
+from typing import List, Optional
 from nodes import *
 
 class Parser:
-
-    def __init__(self, tokens):
+    """Parser for converting token stream into AST."""
+    
+    def __init__(self, tokens: List) -> None:
         self.tokens = tokens
         self.pos = 0
 
-    def current(self):
+    def current(self) -> Optional:
+        """Get current token without consuming it."""
         if self.pos >= len(self.tokens):
             return None
         return self.tokens[self.pos]
 
-    def eat(self, token_type):
+    def eat(self, token_type: str):
+        """Consume and return current token if it matches expected type."""
         token = self.current()
 
         if token is None:
-            raise SyntaxError("Unexpected EOF")
+            raise SyntaxError(f"Unexpected EOF, expected {token_type}")
 
         if token.type != token_type:
             raise SyntaxError(
-                f"Expected {token_type}, got {token.type}"
+                f"Expected {token_type}, got {token.type} at position {self.pos}"
             )
 
         self.pos += 1
         return token
 
-    def skip_newlines(self):
+    def skip_newlines(self) -> None:
+        """Skip NEWLINE tokens."""
         while self.current() and self.current().type == "NEWLINE":
             self.pos += 1
 
     # ----------------------
 
-    def parse(self):
+    def parse(self) -> Program:
+        """Parse entire token stream into a Program AST node."""
         body = []
 
         self.skip_newlines()
@@ -45,77 +51,64 @@ class Parser:
     # ----------------------
 
     def statement(self):
-
+        """Parse a single statement."""
         token = self.current()
+        
+        if token is None:
+            raise SyntaxError("Unexpected EOF in statement")
 
-        match token.type:
+        statement_map = {
+            "LET": self.let_statement,
+            "IDENT": self.assign_statement,
+            "PRINT": self.print_statement,
+        }
 
-            case "LET":
-                return self.let_statement()
-
-            case "IDENT":
-                return self.assign_statement()
-
-            case "PRINT":
-                return self.print_statement()
-
-            case _:
-                raise SyntaxError(
-                    f"Unexpected token {token.type}"
-                )
+        parser_method = statement_map.get(token.type)
+        if parser_method is None:
+            raise SyntaxError(
+                f"Unexpected token {token.type} at position {self.pos}"
+            )
+        
+        return parser_method()
 
     # ----------------------
 
-    def let_statement(self):
-
+    def let_statement(self) -> Let:
+        """Parse let statement: let IDENT = expr"""
         self.eat("LET")
-
         name = self.eat("IDENT").value
-
         self.eat("EQUAL")
-
         expr = self.expression()
-
         return Let(name, expr)
 
     # ----------------------
 
-    def assign_statement(self):
-
+    def assign_statement(self) -> Assign:
+        """Parse assignment statement: IDENT = expr"""
         name = self.eat("IDENT").value
-
         self.eat("EQUAL")
-
         expr = self.expression()
-
         return Assign(name, expr)
 
     # ----------------------
 
-    def print_statement(self):
-
+    def print_statement(self) -> Print:
+        """Parse print statement: print(expr)"""
         self.eat("PRINT")
-
         self.eat("LPAREN")
-
         expr = self.expression()
-
         self.eat("RPAREN")
-
         return Print(expr)
 
     # ----------------------
 
     def expression(self):
-
+        """Parse expression with addition operations."""
         left = self.term()
 
         while self.current() and self.current().type == "PLUS":
-
             op = self.eat("PLUS").value
-
             right = self.term()
-
             left = BinaryOp(left, op, right)
 
         return left
@@ -123,22 +116,17 @@ class Parser:
     # ----------------------
 
     def term(self):
-
+        """Parse atomic expressions (numbers and identifiers)."""
         token = self.current()
+        
+        if token is None:
+            raise SyntaxError("Unexpected EOF in expression")
 
-        match token.type:
-
-            case "NUMBER":
-                return Number(
-                    int(self.eat("NUMBER").value)
-                )
-
-            case "IDENT":
-                return Identifier(
-                    self.eat("IDENT").value
-                )
-
-            case _:
-                raise SyntaxError(
-                    f"Unexpected token {token.type}"
-                )
+        if token.type == "NUMBER":
+            return Number(int(self.eat("NUMBER").value))
+        elif token.type == "IDENT":
+            return Identifier(self.eat("IDENT").value)
+        else:
+            raise SyntaxError(
+                f"Unexpected token {token.type} in expression at position {self.pos}"
+            )
