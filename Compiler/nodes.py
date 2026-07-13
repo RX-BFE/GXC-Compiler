@@ -30,6 +30,16 @@ class Index:
     target: object
     index: object
 
+@dataclass
+class FunctionDecl:
+    name: str
+    params: list
+    body: list
+
+@dataclass
+class Return:
+    value: object
+
 
 # ===== Statements =====
 
