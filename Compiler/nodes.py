@@ -1,4 +1,27 @@
 from dataclasses import dataclass
+from typing import List, Union
+
+# ===== Expression Types =====
+
+Expression = Union[
+    'Number',
+    'String', 
+    'Identifier',
+    'BinaryOp',
+    'Parenthesized',
+    'FunctionCall',
+    'Index'
+]
+
+# ===== Statement Types =====
+
+Statement = Union[
+    'Let',
+    'Assign',
+    'Print',
+    'FunctionDecl',
+    'Return'
+]
 
 # ===== Expressions =====
 
@@ -16,33 +39,33 @@ class Identifier:
 
 @dataclass
 class BinaryOp:
-    left: object
+    left: Expression
     op: str
-    right: object
+    right: Expression
 
 @dataclass
 class Parenthesized:
-    expr: object
+    expr: Expression
 
 @dataclass
 class FunctionCall:
     name: str
-    args: list
+    args: List[Expression]
 
 @dataclass
 class Index:
-    target: object
-    index: object
+    target: Expression
+    index: Expression
 
 @dataclass
 class FunctionDecl:
     name: str
-    params: list
-    body: list
+    params: List[str]
+    body: List[Statement]
 
 @dataclass
 class Return:
-    value: object
+    value: Expression
 
 
 # ===== Statements =====
@@ -50,17 +73,17 @@ class Return:
 @dataclass
 class Let:
     name: str
-    value: object
+    value: Expression
 
 @dataclass
 class Assign:
     name: str
-    value: object
+    value: Expression
 
 @dataclass
 class Print:
-    value: object
+    value: Expression
 
 @dataclass
 class Program:
-    body: list
+    body: List[Statement]
