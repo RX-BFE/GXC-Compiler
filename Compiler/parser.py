@@ -62,6 +62,7 @@ class Parser:
             "IDENT": self.assign_statement,
             "PRINT": self.print_statement,
             "FUNC": self.func_declaration,
+            "RETURN": self.return_statement,
         }
 
         parser_method = statement_map.get(token.type)
@@ -129,6 +130,14 @@ class Parser:
 
         self.eat("RBRACE")
         return FunctionDecl(name, params, body)
+
+    # ----------------------
+
+    def return_statement(self) -> Return:
+        """Parse return statement: return expr"""
+        self.eat("RETURN")
+        expr = self.expression()
+        return Return(expr)
 
     # ----------------------
 
