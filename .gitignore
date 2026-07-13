@@ -1,0 +1,25 @@
+# Compiled binaries
+test/cmd
+test/function
+test/hello
+test/hello_test
+test/operators
+test/operators_test
+test/if_elif_else
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
