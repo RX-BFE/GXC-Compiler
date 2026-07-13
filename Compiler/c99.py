@@ -82,6 +82,10 @@ class C99Codegen:
                     expr = self.expression(value)
                     self.emit(f'{self.INDENT}printf("{self.PRINTF_FORMAT}", {expr});')
 
+            case Return(value=value):
+                expr = self.expression(value)
+                self.emit(f"{self.INDENT}return {expr};")
+
             case _:
                 raise RuntimeError(f"Unknown statement type: {type(node).__name__}")
 
