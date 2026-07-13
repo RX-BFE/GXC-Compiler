@@ -1,5 +1,9 @@
 from typing import Set, List
-from nodes import *
+from nodes import (
+    Program, Let, Assign, Print, FunctionDecl, Return,
+    Number, String, Identifier, BinaryOp, Parenthesized, 
+    FunctionCall, Index, Expression, Statement
+)
 
 class C99Codegen:
     """C99 code generator for AST nodes."""
@@ -63,7 +67,7 @@ class C99Codegen:
 
     # -------------------------
 
-    def statement(self, node) -> None:
+    def statement(self, node: Statement) -> None:
         """Generate C code for a statement node."""
         match node:
             case Let(name=name, value=value):
@@ -89,7 +93,7 @@ class C99Codegen:
             case _:
                 raise RuntimeError(f"Unknown statement type: {type(node).__name__}")
 
-    def _emit_variable_declaration(self, name: str, value, is_first_declaration: bool) -> None:
+    def _emit_variable_declaration(self, name: str, value: Expression, is_first_declaration: bool) -> None:
         """Emit variable declaration or assignment based on whether it's first use."""
         expr = self.expression(value)
         
@@ -101,7 +105,7 @@ class C99Codegen:
 
     # -------------------------
 
-    def expression(self, node) -> str:
+    def expression(self, node: Expression) -> str:
         """Generate C code for an expression node."""
         match node:
             case Number(value=v):
@@ -111,12 +115,8 @@ class C99Codegen:
                 # Generate C string literal with escaped quotes
                 return f'"{v}"'
 
-            case Identifier(name="args"):
-                # args is a special identifier that maps to argv
-                return "argv"
-
             case Identifier(name=n):
-                return n
+                return self._handle_identifier(n)
 
             case BinaryOp(left=l, op=op, right=r):
                 left = self.expression(l)
@@ -127,25 +127,40 @@ class C99Codegen:
                 expr_str = self.expression(e)
                 return f"({expr_str})"
 
-            case FunctionCall(name="get_args", args=_):
-                # get_args() generates code to return argc-1 (skip program name)
-                return "argc - 1"
-
             case FunctionCall(name=name, args=args):
-                # For other function calls, generate function call syntax
-                args_str = ", ".join(self.expression(arg) for arg in args)
-                return f"{name}({args_str})"
-
-            case Index(target=Identifier(name="args"), index=index):
-                # args[index] generates argv[index+1] (skip program name)
-                index_expr = self.expression(index)
-                return f"argv[{index_expr} + 1]"
+                return self._handle_function_call(name, args)
 
             case Index(target=target, index=index):
-                # Generate array indexing: target[index]
-                target_expr = self.expression(target)
-                index_expr = self.expression(index)
-                return f"{target_expr}[{index_expr}]"
+                return self._handle_index(target, index)
 
             case _:
                 raise RuntimeError(f"Unknown expression type: {type(node).__name__}")
+
+    def _handle_identifier(self, name: str) -> str:
+        """Handle identifier with special cases."""
+        if name == "args":
+            # args is a special identifier that maps to argv
+            return "argv"
+        return name
+
+    def _handle_function_call(self, name: str, args: List[Expression]) -> str:
+        """Handle function call with special cases."""
+        if name == "get_args":
+            # get_args() generates code to return argc-1 (skip program name)
+            return "argc - 1"
+        
+        # For other function calls, generate function call syntax
+        args_str = ", ".join(self.expression(arg) for arg in args)
+        return f"{name}({args_str})"
+
+    def _handle_index(self, target: Expression, index: Expression) -> str:
+        """Handle array indexing with special cases."""
+        if isinstance(target, Identifier) and target.name == "args":
+            # args[index] generates argv[index+1] (skip program name)
+            index_expr = self.expression(index)
+            return f"argv[{index_expr} + 1]"
+        
+        # Generate array indexing: target[index]
+        target_expr = self.expression(target)
+        index_expr = self.expression(index)
+        return f"{target_expr}[{index_expr}]"
