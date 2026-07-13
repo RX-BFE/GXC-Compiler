@@ -17,6 +17,10 @@ TOKEN_REGEX = [
     ("IDENT",    r"\b[a-zA-Z_][a-zA-Z0-9_]*\b"),
     ("STRING",   r'"[^"]*"'),
     ("PLUS",     r"\+"),
+    ("MINUS",    r"-"),
+    ("STAR",     r"\*"),
+    ("SLASH",    r"/"),
+    ("PERCENT",  r"%"),
     ("EQUAL",    r"="),
     ("LPAREN",   r"\("),
     ("RPAREN",   r"\)"),
@@ -71,6 +75,18 @@ def lexer(code):
 
             case "PLUS":
                 yield Token("PLUS", value)
+
+            case "MINUS":
+                yield Token("MINUS", value)
+
+            case "STAR":
+                yield Token("STAR", value)
+
+            case "SLASH":
+                yield Token("SLASH", value)
+
+            case "PERCENT":
+                yield Token("PERCENT", value)
 
             case "EQUAL":
                 yield Token("EQUAL", value)
