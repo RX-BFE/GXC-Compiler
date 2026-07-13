@@ -142,11 +142,11 @@ class Parser:
     # ----------------------
 
     def expression(self):
-        """Parse expression with addition operations."""
+        """Parse expression with addition and subtraction operations."""
         left = self.term()
 
-        while self.current() and self.current().type == "PLUS":
-            op = self.eat("PLUS").value
+        while self.current() and self.current().type in ("PLUS", "MINUS"):
+            op = self.eat(self.current().type).value
             right = self.term()
             left = BinaryOp(left, op, right)
 
@@ -155,6 +155,19 @@ class Parser:
     # ----------------------
 
     def term(self):
+        """Parse expression with multiplication, division, and modulo operations."""
+        left = self.factor()
+
+        while self.current() and self.current().type in ("STAR", "SLASH", "PERCENT"):
+            op = self.eat(self.current().type).value
+            right = self.factor()
+            left = BinaryOp(left, op, right)
+
+        return left
+
+    # ----------------------
+
+    def factor(self):
         """Parse atomic expressions (numbers, strings, identifiers, function calls, and index operations)."""
         token = self.current()
 
