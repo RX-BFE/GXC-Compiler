@@ -177,6 +177,9 @@ class Parser:
                 # Parse arguments if present
                 if self.current() and self.current().type != "RPAREN":
                     args.append(self.expression())
+                    while self.current() and self.current().type == "COMMA":
+                        self.eat("COMMA")
+                        args.append(self.expression())
                 self.eat("RPAREN")
                 return FunctionCall(ident.name, args)
 
