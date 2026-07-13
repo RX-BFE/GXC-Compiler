@@ -61,6 +61,7 @@ class Parser:
             "LET": self.let_statement,
             "IDENT": self.assign_statement,
             "PRINT": self.print_statement,
+            "FUNC": self.func_declaration,
         }
 
         parser_method = statement_map.get(token.type)
@@ -99,6 +100,35 @@ class Parser:
         expr = self.expression()
         self.eat("RPAREN")
         return Print(expr)
+
+    # ----------------------
+
+    def func_declaration(self) -> FunctionDecl:
+        """Parse function declaration: func name(params) { body }"""
+        self.eat("FUNC")
+        name = self.eat("IDENT").value
+        self.eat("LPAREN")
+
+        # Parse parameters
+        params = []
+        if self.current() and self.current().type == "IDENT":
+            params.append(self.eat("IDENT").value)
+            while self.current() and self.current().type == "COMMA":
+                self.eat("COMMA")
+                params.append(self.eat("IDENT").value)
+
+        self.eat("RPAREN")
+        self.eat("LBRACE")
+
+        # Parse function body
+        body = []
+        self.skip_newlines()
+        while self.current() and self.current().type != "RBRACE":
+            body.append(self.statement())
+            self.skip_newlines()
+
+        self.eat("RBRACE")
+        return FunctionDecl(name, params, body)
 
     # ----------------------
 
