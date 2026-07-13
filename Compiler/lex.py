@@ -45,6 +45,7 @@ def lexer(code):
         "PRINT",
         "FUNC",
         "RETURN",
+        "COMPARE",
         "NUMBER",
         "IDENT",
         "STRING",

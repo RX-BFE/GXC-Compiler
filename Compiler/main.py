@@ -7,7 +7,7 @@ from c99 import C99Codegen
 
 
 def compile_file(source_path: Path) -> int:
-    """Compile a .gcx file to .c file. Returns exit code."""
+    """Compile a .gxc file to .c file. Returns exit code."""
     try:
         code = source_path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
@@ -44,7 +44,7 @@ def main() -> int:
     """Main entry point. Returns exit code."""
     if len(sys.argv) != 2:
         print("Usage:")
-        print("    python main.py <file.gcx>")
+        print("    python main.py <file.gxc")
         return 1
 
     source = Path(sys.argv[1])
@@ -57,8 +57,8 @@ def main() -> int:
         print(f"Error: Path is not a file: {source}")
         return 1
 
-    if source.suffix != ".gcx":
-        print("Error: Input file must have .gcx extension")
+    if source.suffix != ".gxc":
+        print("Error: Input file must have .gxc extension")
         return 1
 
     return compile_file(source)

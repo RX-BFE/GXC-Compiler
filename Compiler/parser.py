@@ -158,7 +158,20 @@ class Parser:
     # ----------------------
 
     def expression(self) -> Expression:
-        """Parse expression with addition and subtraction operations."""
+        """Parse expression with comparison operators (lowest precedence)."""
+        return self.comparison()
+
+    def comparison(self) -> Expression:
+        """Parse comparison operators: ==, !=, <, >, <=, >="""
+        left = self.additive()
+        while self.current() and self.current().type == "COMPARE":
+            op = self.eat("COMPARE").value
+            right = self.additive()
+            left = BinaryOp(left, op, right)
+        return left
+
+    def additive(self) -> Expression:
+        """Parse addition and subtraction."""
         left = self.term()
 
         while self.current() and self.current().type in ("PLUS", "MINUS"):
