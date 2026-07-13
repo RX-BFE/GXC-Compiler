@@ -168,7 +168,7 @@ class Parser:
     # ----------------------
 
     def factor(self):
-        """Parse atomic expressions (numbers, strings, identifiers, function calls, and index operations)."""
+        """Parse atomic expressions (numbers, strings, identifiers, function calls, index operations, and parenthesized expressions)."""
         token = self.current()
 
         if token is None:
@@ -180,6 +180,12 @@ class Parser:
             # Remove quotes from string literal
             str_value = self.eat("STRING").value
             return String(str_value[1:-1])  # Remove surrounding quotes
+        elif token.type == "LPAREN":
+            # Parenthesized expression: (expr)
+            self.eat("LPAREN")
+            expr = self.expression()
+            self.eat("RPAREN")
+            return expr
         elif token.type == "IDENT":
             ident = Identifier(self.eat("IDENT").value)
 
