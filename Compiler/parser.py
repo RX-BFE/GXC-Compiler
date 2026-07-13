@@ -16,6 +16,9 @@ from nodes import (
     Index,
     Expression,
     Statement,
+    If,
+    Elif,
+    Else,
 )
 
 
@@ -81,6 +84,7 @@ class Parser:
             "PRINT": self.print_statement,
             "FUNC": self.func_declaration,
             "RETURN": self.return_statement,
+            "IF": self.if_statement,
         }
 
         parser_method = statement_map.get(token.type)
@@ -154,6 +158,60 @@ class Parser:
         self.eat("RETURN")
         expr = self.expression()
         return Return(expr)
+
+    # ----------------------
+
+    def if_statement(self) -> If:
+        """Parse if-elif-else statement: if cond { body } elif cond { body } else { body }"""
+        self.eat("IF")
+        condition = self.expression()
+        self.eat("LBRACE")
+
+        # Parse if body
+        body = []
+        self.skip_newlines()
+        while self.current() and self.current().type != "RBRACE":
+            body.append(self.statement())
+            self.skip_newlines()
+
+        self.eat("RBRACE")
+
+        # Parse elif clauses
+        elifs = []
+        while self.current() and self.current().type == "ELIF":
+            elif_clause = self.elif_statement()
+            elifs.append(elif_clause)
+
+        # Parse else clause (optional)
+        else_body = None
+        if self.current() and self.current().type == "ELSE":
+            self.eat("ELSE")
+            self.eat("LBRACE")
+
+            else_body = []
+            self.skip_newlines()
+            while self.current() and self.current().type != "RBRACE":
+                else_body.append(self.statement())
+                self.skip_newlines()
+
+            self.eat("RBRACE")
+
+        return If(condition, body, elifs, else_body)
+
+    def elif_statement(self) -> Elif:
+        """Parse elif clause: elif cond { body }"""
+        self.eat("ELIF")
+        condition = self.expression()
+        self.eat("LBRACE")
+
+        body = []
+        self.skip_newlines()
+        while self.current() and self.current().type != "RBRACE":
+            body.append(self.statement())
+            self.skip_newlines()
+
+        self.eat("RBRACE")
+        return Elif(condition, body)
 
     # ----------------------
 
