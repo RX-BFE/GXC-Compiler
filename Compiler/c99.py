@@ -1,4 +1,4 @@
-from typing import Set, List
+from typing import Set, List, Optional
 from nodes import (
     Program,
     Let,
@@ -15,6 +15,8 @@ from nodes import (
     Index,
     Expression,
     Statement,
+    If,
+    Elif,
 )
 
 
@@ -107,6 +109,9 @@ class C99Codegen:
                 expr = self.expression(value)
                 self.emit(f"{self.INDENT}return {expr};")
 
+            case If(condition=condition, body=body, elifs=elifs, else_body=else_body):
+                self._generate_if_statement(condition, body, elifs, else_body)
+
             case _:
                 raise RuntimeError(f"Unknown statement type: {type(node).__name__}")
 
@@ -121,6 +126,44 @@ class C99Codegen:
             self.emit(f"{self.INDENT}int {name} = {expr};")
         else:
             self.emit(f"{self.INDENT}{name} = {expr};")
+
+    # -------------------------
+
+    def _generate_if_statement(
+        self,
+        condition: Expression,
+        body: List[Statement],
+        elifs: List[Elif],
+        else_body: Optional[List[Statement]],
+    ) -> None:
+        """Generate C if-elif-else statement."""
+        cond_expr = self.expression(condition)
+        self.emit(f"{self.INDENT}if ({cond_expr}) {{")
+
+        # Generate if body
+        for stmt in body:
+            self.statement(stmt)
+
+        self.emit(f"{self.INDENT}}}")
+
+        # Generate elif clauses
+        for elif_clause in elifs:
+            elif_cond = self.expression(elif_clause.condition)
+            self.emit(f"{self.INDENT}else if ({elif_cond}) {{")
+
+            for stmt in elif_clause.body:
+                self.statement(stmt)
+
+            self.emit(f"{self.INDENT}}}")
+
+        # Generate else clause
+        if else_body:
+            self.emit(f"{self.INDENT}else {{")
+
+            for stmt in else_body:
+                self.statement(stmt)
+
+            self.emit(f"{self.INDENT}}}")
 
     # -------------------------
 
