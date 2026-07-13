@@ -41,4 +41,4 @@ grc-compiler/
 
 ## Testing
 
-Untuk informasi lengkap tentang testing, lihat [TEST.md](TEST.md).
+For complete testing information, see [TEST.md](TEST.md).
