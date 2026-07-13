@@ -11,6 +11,8 @@ class Token:
 TOKEN_REGEX = [
     ("LET",      r"\blet\b"),
     ("PRINT",    r"\bprint\b"),
+    ("FUNC",     r"\bfunc\b"),
+    ("RETURN",   r"\breturn\b"),
     ("NUMBER",   r"\b\d+\b"),
     ("IDENT",    r"\b[a-zA-Z_][a-zA-Z0-9_]*\b"),
     ("STRING",   r'"[^"]*"'),
@@ -18,8 +20,11 @@ TOKEN_REGEX = [
     ("EQUAL",    r"="),
     ("LPAREN",   r"\("),
     ("RPAREN",   r"\)"),
+    ("LBRACE",   r"\{"),
+    ("RBRACE",   r"\}"),
     ("LBRACKET", r"\["),
     ("RBRACKET", r"\]"),
+    ("COMMA",    r","),
     ("NEWLINE",  r"\n"),
     ("SKIP",     r"[ \t]+"),
     ("MISMATCH", r"."),
@@ -49,6 +54,12 @@ def lexer(code):
             case "PRINT":
                 yield Token("PRINT", value)
 
+            case "FUNC":
+                yield Token("FUNC", value)
+
+            case "RETURN":
+                yield Token("RETURN", value)
+
             case "NUMBER":
                 yield Token("NUMBER", value)
 
@@ -70,11 +81,20 @@ def lexer(code):
             case "RPAREN":
                 yield Token("RPAREN", value)
 
+            case "LBRACE":
+                yield Token("LBRACE", value)
+
+            case "RBRACE":
+                yield Token("RBRACE", value)
+
             case "LBRACKET":
                 yield Token("LBRACKET", value)
 
             case "RBRACKET":
                 yield Token("RBRACKET", value)
+
+            case "COMMA":
+                yield Token("COMMA", value)
 
             case "MISMATCH":
                 raise SyntaxError(f"Karakter tidak dikenal: {value}")
