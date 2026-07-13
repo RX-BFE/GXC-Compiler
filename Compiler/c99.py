@@ -26,16 +26,40 @@ class C99Codegen:
         self.emit(self.INCLUDE_STDIO)
         self.emit(self.INCLUDE_STDLIB)
         self.emit("")
+
+        # Generate function declarations first
+        for stmt in program.body:
+            if isinstance(stmt, FunctionDecl):
+                self._generate_function_decl(stmt)
+
+        self.emit("")
         self.emit(self.MAIN_SIGNATURE)
         self.emit("{")
 
+        # Generate non-function statements in main
         for stmt in program.body:
-            self.statement(stmt)
+            if not isinstance(stmt, FunctionDecl):
+                self.statement(stmt)
 
         self.emit(f"{self.INDENT}{self.RETURN_STATEMENT}")
         self.emit("}")
 
         return "\n".join(self.lines)
+
+    # -------------------------
+
+    def _generate_function_decl(self, node: FunctionDecl) -> None:
+        """Generate C function declaration."""
+        # Generate function signature
+        params_str = ", ".join(f"int {param}" for param in node.params)
+        self.emit(f"int {node.name}({params_str})")
+        self.emit("{")
+
+        # Generate function body
+        for stmt in node.body:
+            self.statement(stmt)
+
+        self.emit("}")
 
     # -------------------------
 
