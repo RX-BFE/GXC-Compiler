@@ -1,14 +1,27 @@
 from typing import List, Optional
 from lex import Token
 from nodes import (
-    Program, Let, Assign, Print, FunctionDecl, Return,
-    Number, String, Identifier, BinaryOp, Parenthesized, 
-    FunctionCall, Index, Expression, Statement
+    Program,
+    Let,
+    Assign,
+    Print,
+    FunctionDecl,
+    Return,
+    Number,
+    String,
+    Identifier,
+    BinaryOp,
+    Parenthesized,
+    FunctionCall,
+    Index,
+    Expression,
+    Statement,
 )
+
 
 class Parser:
     """Parser for converting token stream into AST."""
-    
+
     def __init__(self, tokens: List[Token]) -> None:
         self.tokens = tokens
         self.pos = 0
@@ -58,7 +71,7 @@ class Parser:
     def statement(self) -> Statement:
         """Parse a single statement."""
         token = self.current()
-        
+
         if token is None:
             raise SyntaxError("Unexpected EOF in statement")
 
@@ -72,10 +85,8 @@ class Parser:
 
         parser_method = statement_map.get(token.type)
         if parser_method is None:
-            raise SyntaxError(
-                f"Unexpected token {token.type} at position {self.pos}"
-            )
-        
+            raise SyntaxError(f"Unexpected token {token.type} at position {self.pos}")
+
         return parser_method()
 
     # ----------------------
