@@ -159,6 +159,18 @@ If a test compiles but fails during execution:
 
 ## Continuous Integration
 
+### GitHub Actions
+
+The project uses GitHub Actions for automated testing. The CI/CD pipeline is defined in `.github/workflows/test.yml` and:
+
+- Runs on every push to `master` and `if-else` branches
+- Runs on every pull request to `master` and `if-else` branches
+- Sets up Python 3.x and GCC in an Ubuntu environment
+- Executes the automated test runner script
+- Uploads generated C files as artifacts for debugging
+
+### Manual CI Testing
+
 The test runner script is designed to be easily integrated into CI/CD pipelines:
 
 ```bash
