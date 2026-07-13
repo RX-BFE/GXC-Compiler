@@ -6,39 +6,63 @@ from parser import Parser
 from c99 import C99Codegen
 
 
-def compile_file(source_path: Path):
-    code = source_path.read_text(encoding="utf-8")
+def compile_file(source_path: Path) -> int:
+    """Compile a .gcx file to .c file. Returns exit code."""
+    try:
+        code = source_path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        print(f"Error: Unable to read file (encoding issue): {source_path}")
+        return 1
+    except IOError as e:
+        print(f"Error: Unable to read file: {e}")
+        return 1
 
-    tokens = list(lexer(code))
-    ast = Parser(tokens).parse()
+    try:
+        tokens = list(lexer(code))
+        ast = Parser(tokens).parse()
+        c_code = C99Codegen().generate(ast)
+    except SyntaxError as e:
+        print(f"Syntax Error: {e}")
+        return 1
+    except Exception as e:
+        print(f"Compilation Error: {e}")
+        return 1
 
-    c_code = C99Codegen().generate(ast)
+    try:
+        output_path = source_path.with_suffix(".c")
+        output_path.write_text(c_code, encoding="utf-8")
+        print(f"Compiled: {source_path}")
+        print(f"Output  : {output_path}")
+    except IOError as e:
+        print(f"Error: Unable to write output file: {e}")
+        return 1
 
-    output_path = source_path.with_suffix(".c")
-    output_path.write_text(c_code, encoding="utf-8")
-
-    print(f"Compiled: {source_path}")
-    print(f"Output  : {output_path}")
+    return 0
 
 
-def main():
+def main() -> int:
+    """Main entry point. Returns exit code."""
     if len(sys.argv) != 2:
         print("Usage:")
         print("    python main.py <file.gcx>")
-        sys.exit(1)
+        return 1
 
     source = Path(sys.argv[1])
 
     if not source.exists():
-        print(f"File not found: {source}")
-        sys.exit(1)
+        print(f"Error: File not found: {source}")
+        return 1
+
+    if not source.is_file():
+        print(f"Error: Path is not a file: {source}")
+        return 1
 
     if source.suffix != ".gcx":
-        print("Input file must have .gcx extension")
-        sys.exit(1)
+        print("Error: Input file must have .gcx extension")
+        return 1
 
-    compile_file(source)
+    return compile_file(source)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
