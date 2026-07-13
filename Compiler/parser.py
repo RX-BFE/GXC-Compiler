@@ -1,20 +1,25 @@
 from typing import List, Optional
-from nodes import *
+from lex import Token
+from nodes import (
+    Program, Let, Assign, Print, FunctionDecl, Return,
+    Number, String, Identifier, BinaryOp, Parenthesized, 
+    FunctionCall, Index, Expression, Statement
+)
 
 class Parser:
     """Parser for converting token stream into AST."""
     
-    def __init__(self, tokens: List) -> None:
+    def __init__(self, tokens: List[Token]) -> None:
         self.tokens = tokens
         self.pos = 0
 
-    def current(self) -> Optional:
+    def current(self) -> Optional[Token]:
         """Get current token without consuming it."""
         if self.pos >= len(self.tokens):
             return None
         return self.tokens[self.pos]
 
-    def eat(self, token_type: str):
+    def eat(self, token_type: str) -> Token:
         """Consume and return current token if it matches expected type."""
         token = self.current()
 
@@ -50,7 +55,7 @@ class Parser:
 
     # ----------------------
 
-    def statement(self):
+    def statement(self) -> Statement:
         """Parse a single statement."""
         token = self.current()
         
@@ -141,7 +146,7 @@ class Parser:
 
     # ----------------------
 
-    def expression(self):
+    def expression(self) -> Expression:
         """Parse expression with addition and subtraction operations."""
         left = self.term()
 
@@ -154,7 +159,7 @@ class Parser:
 
     # ----------------------
 
-    def term(self):
+    def term(self) -> Expression:
         """Parse expression with multiplication, division, and modulo operations."""
         left = self.factor()
 
@@ -167,7 +172,7 @@ class Parser:
 
     # ----------------------
 
-    def factor(self):
+    def factor(self) -> Expression:
         """Parse atomic expressions (numbers, strings, identifiers, function calls, index operations, and parenthesized expressions)."""
         token = self.current()
 
