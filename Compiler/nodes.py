@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Union
+from typing import List, Union, Optional
 
 # ===== Expression Types =====
 
@@ -15,7 +15,7 @@ Expression = Union[
 
 # ===== Statement Types =====
 
-Statement = Union["Let", "Assign", "Print", "FunctionDecl", "Return"]
+Statement = Union["Let", "Assign", "Print", "FunctionDecl", "Return", "If", "Elif", "Else"]
 
 # ===== Expressions =====
 
@@ -69,6 +69,25 @@ class FunctionDecl:
 @dataclass
 class Return:
     value: Expression
+
+
+@dataclass
+class If:
+    condition: Expression
+    body: List[Statement]
+    elifs: List["Elif"]
+    else_body: Optional[List[Statement]]
+
+
+@dataclass
+class Elif:
+    condition: Expression
+    body: List[Statement]
+
+
+@dataclass
+class Else:
+    body: List[Statement]
 
 
 # ===== Statements =====
