@@ -185,7 +185,7 @@ class Parser:
             self.eat("LPAREN")
             expr = self.expression()
             self.eat("RPAREN")
-            return expr
+            return Parenthesized(expr)
         elif token.type == "IDENT":
             ident = Identifier(self.eat("IDENT").value)
 

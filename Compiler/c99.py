@@ -123,6 +123,10 @@ class C99Codegen:
                 right = self.expression(r)
                 return f"{left} {op} {right}"
 
+            case Parenthesized(expr=e):
+                expr_str = self.expression(e)
+                return f"({expr_str})"
+
             case FunctionCall(name="get_args", args=_):
                 # get_args() generates code to return argc-1 (skip program name)
                 return "argc - 1"

@@ -21,6 +21,10 @@ class BinaryOp:
     right: object
 
 @dataclass
+class Parenthesized:
+    expr: object
+
+@dataclass
 class FunctionCall:
     name: str
     args: list
