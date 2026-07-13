@@ -40,79 +40,24 @@ master_pattern = "|".join(
 )
 
 def lexer(code):
+    # Token type mapping for direct token types
+    direct_token_types = {
+        "LET", "PRINT", "FUNC", "RETURN", "NUMBER", "IDENT", "STRING",
+        "PLUS", "MINUS", "STAR", "SLASH", "PERCENT", "EQUAL",
+        "LPAREN", "RPAREN", "LBRACE", "RBRACE", "LBRACKET", "RBRACKET", "COMMA"
+    }
+    
     for match in re.finditer(master_pattern, code):
         kind = match.lastgroup
         value = match.group()
 
-        # Pattern Matching
-        match kind:
-            case "SKIP":
-                continue
-
-            case "NEWLINE":
-                yield Token("NEWLINE", "\\n")
-
-            case "LET":
-                yield Token("LET", value)
-
-            case "PRINT":
-                yield Token("PRINT", value)
-
-            case "FUNC":
-                yield Token("FUNC", value)
-
-            case "RETURN":
-                yield Token("RETURN", value)
-
-            case "NUMBER":
-                yield Token("NUMBER", value)
-
-            case "IDENT":
-                yield Token("IDENT", value)
-
-            case "STRING":
-                yield Token("STRING", value)
-
-            case "PLUS":
-                yield Token("PLUS", value)
-
-            case "MINUS":
-                yield Token("MINUS", value)
-
-            case "STAR":
-                yield Token("STAR", value)
-
-            case "SLASH":
-                yield Token("SLASH", value)
-
-            case "PERCENT":
-                yield Token("PERCENT", value)
-
-            case "EQUAL":
-                yield Token("EQUAL", value)
-
-            case "LPAREN":
-                yield Token("LPAREN", value)
-
-            case "RPAREN":
-                yield Token("RPAREN", value)
-
-            case "LBRACE":
-                yield Token("LBRACE", value)
-
-            case "RBRACE":
-                yield Token("RBRACE", value)
-
-            case "LBRACKET":
-                yield Token("LBRACKET", value)
-
-            case "RBRACKET":
-                yield Token("RBRACKET", value)
-
-            case "COMMA":
-                yield Token("COMMA", value)
-
-            case "MISMATCH":
-                raise SyntaxError(f"Karakter tidak dikenal: {value}")
+        if kind == "SKIP":
+            continue
+        elif kind == "NEWLINE":
+            yield Token("NEWLINE", "\\n")
+        elif kind in direct_token_types:
+            yield Token(kind, value)
+        elif kind == "MISMATCH":
+            raise SyntaxError(f"Karakter tidak dikenal: {value}")
 
 
