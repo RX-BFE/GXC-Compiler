@@ -7,12 +7,12 @@ class Token:
     type: str
     value: str
 
-
 TOKEN_REGEX = [
     ("LET", r"\blet\b"),
     ("PRINT", r"\bprint\b"),
     ("FUNC", r"\bfunc\b"),
     ("RETURN", r"\breturn\b"),
+    ("COMPARE", r"==|!=|<=|>=|<|>"),
     ("NUMBER", r"\b\d+\b"),
     ("IDENT", r"\b[a-zA-Z_][a-zA-Z0-9_]*\b"),
     ("STRING", r'"[^"]*"'),
@@ -33,6 +33,7 @@ TOKEN_REGEX = [
     ("SKIP", r"[ \t]+"),
     ("MISMATCH", r"."),
 ]
+
 
 master_pattern = "|".join(f"(?P<{name}>{pattern})" for name, pattern in TOKEN_REGEX)
 
