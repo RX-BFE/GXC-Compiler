@@ -6,6 +6,7 @@ GXC is a small compiler that translates `.gxc` source files into C99.
 
 ```bash
 uv sync
+uv sync --group dev
 ```
 
 ## CLI
@@ -20,4 +21,5 @@ uv run gxc path/to/file.gxc
 
 ```bash
 make test
+make lint
 ```

@@ -16,13 +16,12 @@ try:
         Parenthesized,
         FunctionCall,
         Index,
-        Expression,
-        Statement,
-        If,
-        Elif,
-        Else,
-        For,
-    )
+    Expression,
+    Statement,
+    If,
+    Elif,
+    For,
+)
 except ImportError:  # pragma: no cover - direct script execution fallback
     from lex import Token
     from errors import ParseError

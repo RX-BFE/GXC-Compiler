@@ -15,7 +15,7 @@ INVALID_C_FILES := $(patsubst $(INVALID_TEST_DIR)/%.gxc,$(INVALID_TEST_DIR)/%.c,
 
 .DEFAULT_GOAL := test
 
-.PHONY: test test-valid test-invalid clean clean-artifacts list-tests
+.PHONY: test test-valid test-invalid clean clean-artifacts list-tests lint
 
 test:
 	@set -eu; \
@@ -165,3 +165,6 @@ list-tests:
 			echo "  - invalid/$$(basename "$$file")"; \
 		done; \
 	fi
+
+lint:
+	@uv run pylint Compiler

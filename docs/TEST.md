@@ -40,6 +40,7 @@ make test
 
 ```bash
 uv sync
+uv sync --group dev
 uv run gxc test/hello.gxc
 ```
 
@@ -98,6 +99,7 @@ All tests passed! ✓
 
 ```bash
 make test
+make lint
 make test-valid
 make test-invalid
 make clean
