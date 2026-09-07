@@ -139,16 +139,7 @@ class Parser:
                 params.append(self.eat("IDENT").value)
 
         self.eat("RPAREN")
-        self.eat("LBRACE")
-
-        # Parse function body
-        body = []
-        self.skip_newlines()
-        while self.current() and self.current().type != "RBRACE":
-            body.append(self.statement())
-            self.skip_newlines()
-
-        self.eat("RBRACE")
+        body = self.block("function body")
         return FunctionDecl(name, params, body)
 
     # ----------------------
@@ -165,36 +156,21 @@ class Parser:
         """Parse if-elif-else statement: if cond { body } elif cond { body } else { body }"""
         self.eat("IF")
         condition = self.expression()
-        self.eat("LBRACE")
-
-        # Parse if body
-        body = []
-        self.skip_newlines()
-        while self.current() and self.current().type != "RBRACE":
-            body.append(self.statement())
-            self.skip_newlines()
-
-        self.eat("RBRACE")
+        body = self.block("if body")
 
         # Parse elif clauses
         elifs = []
+        self.skip_newlines()
         while self.current() and self.current().type == "ELIF":
             elif_clause = self.elif_statement()
             elifs.append(elif_clause)
+            self.skip_newlines()
 
         # Parse else clause (optional)
         else_body = None
         if self.current() and self.current().type == "ELSE":
             self.eat("ELSE")
-            self.eat("LBRACE")
-
-            else_body = []
-            self.skip_newlines()
-            while self.current() and self.current().type != "RBRACE":
-                else_body.append(self.statement())
-                self.skip_newlines()
-
-            self.eat("RBRACE")
+            else_body = self.block("else body")
 
         return If(condition, body, elifs, else_body)
 
@@ -202,6 +178,12 @@ class Parser:
         """Parse elif clause: elif cond { body }"""
         self.eat("ELIF")
         condition = self.expression()
+        body = self.block("elif body")
+        return Elif(condition, body)
+
+    def block(self, context: str) -> List[Statement]:
+        """Parse a required brace-delimited block."""
+        self.skip_newlines()
         self.eat("LBRACE")
 
         body = []
@@ -210,8 +192,11 @@ class Parser:
             body.append(self.statement())
             self.skip_newlines()
 
+        if self.current() is None:
+            raise SyntaxError(f"Unexpected EOF, expected RBRACE to close {context}")
+
         self.eat("RBRACE")
-        return Elif(condition, body)
+        return body
 
     # ----------------------
 
