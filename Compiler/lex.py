@@ -1,11 +1,17 @@
 import re
 from dataclasses import dataclass
+from typing import Optional
+
+from errors import LexError
 
 
 @dataclass
 class Token:
     type: str
     value: str
+    line: int
+    column: int
+    source: Optional[str] = None
 
 TOKEN_REGEX = [
     ("LET", r"\blet\b"),
@@ -15,6 +21,7 @@ TOKEN_REGEX = [
     ("IF", r"\bif\b"),
     ("ELIF", r"\belif\b"),
     ("ELSE", r"\belse\b"),
+    ("FOR", r"\bfor\b"),
     ("COMPARE", r"==|!=|<=|>=|<|>"),
     ("NUMBER", r"\b\d+\b"),
     ("IDENT", r"\b[a-zA-Z_][a-zA-Z0-9_]*\b"),
@@ -32,6 +39,7 @@ TOKEN_REGEX = [
     ("LBRACKET", r"\["),
     ("RBRACKET", r"\]"),
     ("COMMA", r","),
+    ("SEMICOLON", r";"),
     ("NEWLINE", r"\n"),
     ("SKIP", r"[ \t]+"),
     ("MISMATCH", r"."),
@@ -41,7 +49,11 @@ TOKEN_REGEX = [
 master_pattern = "|".join(f"(?P<{name}>{pattern})" for name, pattern in TOKEN_REGEX)
 
 
-def lexer(code):
+def lexer(code, source: Optional[str] = None):
+    return _lexer(code, source=source)
+
+
+def _lexer(code, source: Optional[str] = None):
     # Token type mapping for direct token types
     direct_token_types = {
         "LET",
@@ -51,6 +63,7 @@ def lexer(code):
         "IF",
         "ELIF",
         "ELSE",
+        "FOR",
         "COMPARE",
         "NUMBER",
         "IDENT",
@@ -68,17 +81,30 @@ def lexer(code):
         "LBRACKET",
         "RBRACKET",
         "COMMA",
+        "SEMICOLON",
     }
+
+    line = 1
+    column = 1
 
     for match in re.finditer(master_pattern, code):
         kind = match.lastgroup
         value = match.group()
+        token_line = line
+        token_column = column
+
+        for char in value:
+            if char == "\n":
+                line += 1
+                column = 1
+            else:
+                column += 1
 
         if kind == "SKIP":
             continue
         elif kind == "NEWLINE":
-            yield Token("NEWLINE", "\\n")
+            yield Token("NEWLINE", "\\n", token_line, token_column, source)
         elif kind in direct_token_types:
-            yield Token(kind, value)
+            yield Token(kind, value, token_line, token_column, source)
         elif kind == "MISMATCH":
-            raise SyntaxError(f"Karakter tidak dikenal: {value}")
+            raise LexError(f"Karakter tidak dikenal: {value}", source, token_line, token_column)

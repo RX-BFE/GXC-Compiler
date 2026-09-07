@@ -1,4 +1,5 @@
 from typing import Set, List, Optional
+from errors import CodegenError
 from nodes import (
     Program,
     Let,
@@ -17,6 +18,7 @@ from nodes import (
     Statement,
     If,
     Elif,
+    For,
 )
 
 
@@ -53,17 +55,17 @@ class C99Codegen:
             if isinstance(stmt, FunctionDecl):
                 if stmt.name == "main":
                     if main_decl is not None:
-                        raise RuntimeError("Multiple main functions are not allowed")
+                        raise CodegenError("Multiple main functions are not allowed")
                     main_decl = stmt
                 else:
                     helper_functions.append(stmt)
             else:
-                raise RuntimeError(
+                raise CodegenError(
                     "Top-level statements are not allowed; expected only function declarations"
                 )
 
         if main_decl is None:
-            raise RuntimeError("Program must define func main() { ... }")
+            raise CodegenError("Program must define func main() { ... }")
 
         for index, func in enumerate(helper_functions):
             if index > 0:
@@ -117,14 +119,18 @@ class C99Codegen:
     def _pop_scope(self) -> None:
         """End the current variable scope."""
         if not self.variables_stack:
-            raise RuntimeError("Variable scope underflow")
+            raise CodegenError("Variable scope underflow")
         self.variables_stack.pop()
 
     def _current_variables(self) -> Set[str]:
         """Get the current variable scope."""
         if not self.variables_stack:
-            raise RuntimeError("No active variable scope")
+            raise CodegenError("No active variable scope")
         return self.variables_stack[-1]
+
+    def _is_variable_defined(self, name: str) -> bool:
+        """Check whether a variable is visible in any active scope."""
+        return any(name in scope for scope in reversed(self.variables_stack))
 
     def statement(self, node: Statement) -> None:
         """Generate C code for a statement node."""
@@ -133,7 +139,7 @@ class C99Codegen:
                 self._emit_variable_declaration(name, value, is_first_declaration=True)
 
             case Assign(name=name, value=value):
-                is_first = name not in self._current_variables()
+                is_first = not self._is_variable_defined(name)
                 self._emit_variable_declaration(
                     name, value, is_first_declaration=is_first
                 )
@@ -156,8 +162,11 @@ class C99Codegen:
             case If(condition=condition, body=body, elifs=elifs, else_body=else_body):
                 self._generate_if_statement(condition, body, elifs, else_body)
 
+            case For(init=init, condition=condition, post=post, body=body):
+                self._generate_for_statement(init, condition, post, body)
+
             case _:
-                raise RuntimeError(f"Unknown statement type: {type(node).__name__}")
+                raise CodegenError(f"Unknown statement type: {type(node).__name__}")
 
     def _emit_variable_declaration(
         self, name: str, value: Expression, is_first_declaration: bool
@@ -210,6 +219,61 @@ class C99Codegen:
 
             self.emit(f"{self.INDENT}}}")
 
+    def _generate_for_statement(
+        self,
+        init: Statement,
+        condition: Expression,
+        post: Statement,
+        body: List[Statement],
+    ) -> None:
+        """Generate C for-loop statement."""
+        self._push_scope()
+        try:
+            init_expr = self._render_for_clause(init, is_post=False)
+            cond_expr = self.expression(condition)
+            post_expr = self._render_for_clause(post, is_post=True)
+
+            self.emit(f"{self.INDENT}for ({init_expr}; {cond_expr}; {post_expr}) {{")
+
+            for stmt in body:
+                self.statement(stmt)
+
+            self.emit(f"{self.INDENT}}}")
+        finally:
+            self._pop_scope()
+
+    def _render_for_clause(self, node: Statement, is_post: bool) -> str:
+        """Render a for-loop header clause without trailing semicolon."""
+        match node:
+            case Let(name=name, value=value):
+                if is_post:
+                    raise CodegenError("for-loop post clause cannot be a declaration")
+
+                expr = self.expression(value)
+                if self._is_variable_defined(name):
+                    return f"{name} = {expr}"
+
+                self._current_variables().add(name)
+                return f"int {name} = {expr}"
+
+            case Assign(name=name, value=value):
+                expr = self.expression(value)
+                if self._is_variable_defined(name):
+                    return f"{name} = {expr}"
+
+                if is_post:
+                    raise CodegenError(
+                        f"for-loop post variable '{name}' must be declared before the loop"
+                    )
+
+                self._current_variables().add(name)
+                return f"int {name} = {expr}"
+
+            case _:
+                raise CodegenError(
+                    f"Unsupported for-loop clause: {type(node).__name__}"
+                )
+
     # -------------------------
 
     def expression(self, node: Expression) -> str:
@@ -241,7 +305,7 @@ class C99Codegen:
                 return self._handle_index(target, index)
 
             case _:
-                raise RuntimeError(f"Unknown expression type: {type(node).__name__}")
+                raise CodegenError(f"Unknown expression type: {type(node).__name__}")
 
     def _handle_identifier(self, name: str) -> str:
         """Handle identifier with special cases."""

@@ -1,5 +1,6 @@
 from typing import List, Optional
 from lex import Token
+from errors import ParseError
 from nodes import (
     Program,
     Let,
@@ -19,6 +20,7 @@ from nodes import (
     If,
     Elif,
     Else,
+    For,
 )
 
 
@@ -35,17 +37,28 @@ class Parser:
             return None
         return self.tokens[self.pos]
 
+    def error(self, message: str, token: Optional[Token] = None) -> ParseError:
+        """Create a parse error with source position."""
+        if token is None:
+            token = self.current()
+
+        if token is None and self.pos > 0:
+            token = self.tokens[self.pos - 1]
+
+        if token is None:
+            return ParseError(message)
+
+        return ParseError(message, token.source, token.line, token.column)
+
     def eat(self, token_type: str) -> Token:
         """Consume and return current token if it matches expected type."""
         token = self.current()
 
         if token is None:
-            raise SyntaxError(f"Unexpected EOF, expected {token_type}")
+            raise self.error(f"Unexpected EOF, expected {token_type}")
 
         if token.type != token_type:
-            raise SyntaxError(
-                f"Expected {token_type}, got {token.type} at position {self.pos}"
-            )
+            raise self.error(f"Expected {token_type}, got {token.type}", token)
 
         self.pos += 1
         return token
@@ -66,13 +79,13 @@ class Parser:
         while self.current():
             token = self.current()
             if token.type != "FUNC":
-                raise SyntaxError(
-                    f"Top-level statements are not allowed; expected FUNC, got {token.type} at position {self.pos}"
+                raise self.error(
+                    "Top-level statements are not allowed; expected FUNC", token
                 )
 
             func_decl = self.func_declaration()
             if func_decl.name == "main" and func_decl.params:
-                raise SyntaxError("main() must not take parameters")
+                raise self.error("main() must not take parameters", token)
 
             body.append(func_decl)
             self.skip_newlines()
@@ -80,7 +93,7 @@ class Parser:
         if not any(
             isinstance(stmt, FunctionDecl) and stmt.name == "main" for stmt in body
         ):
-            raise SyntaxError("Program must define func main() { ... }")
+            raise self.error("Program must define func main() { ... }")
 
         return Program(body)
 
@@ -91,7 +104,7 @@ class Parser:
         token = self.current()
 
         if token is None:
-            raise SyntaxError("Unexpected EOF in statement")
+            raise self.error("Unexpected EOF in statement")
 
         statement_map = {
             "LET": self.let_statement,
@@ -100,11 +113,12 @@ class Parser:
             "FUNC": self.func_declaration,
             "RETURN": self.return_statement,
             "IF": self.if_statement,
+            "FOR": self.for_statement,
         }
 
         parser_method = statement_map.get(token.type)
         if parser_method is None:
-            raise SyntaxError(f"Unexpected token {token.type} at position {self.pos}")
+            raise self.error(f"Unexpected token {token.type}", token)
 
         return parser_method()
 
@@ -196,6 +210,44 @@ class Parser:
         body = self.block("elif body")
         return Elif(condition, body)
 
+    def for_statement(self) -> For:
+        """Parse for loop: for init; condition; post { body }"""
+        self.eat("FOR")
+        init = self.for_init_clause()
+        self.eat("SEMICOLON")
+        condition = self.expression()
+        self.eat("SEMICOLON")
+        post = self.for_post_clause()
+        body = self.block("for body")
+        return For(init, condition, post, body)
+
+    def for_init_clause(self) -> Statement:
+        """Parse the init clause inside a for loop."""
+        token = self.current()
+
+        if token is None:
+            raise self.error("Unexpected EOF in for-loop init")
+
+        if token.type == "LET":
+            return self.let_statement()
+
+        if token.type == "IDENT":
+            return self.assign_statement()
+
+        raise self.error("Expected LET or IDENT in for-loop init", token)
+
+    def for_post_clause(self) -> Statement:
+        """Parse the post clause inside a for loop."""
+        token = self.current()
+
+        if token is None:
+            raise self.error("Unexpected EOF in for-loop post")
+
+        if token.type == "IDENT":
+            return self.assign_statement()
+
+        raise self.error("Expected assignment in for-loop post", token)
+
     def block(self, context: str) -> List[Statement]:
         """Parse a required brace-delimited block."""
         self.skip_newlines()
@@ -208,7 +260,7 @@ class Parser:
             self.skip_newlines()
 
         if self.current() is None:
-            raise SyntaxError(f"Unexpected EOF, expected RBRACE to close {context}")
+            raise self.error(f"Unexpected EOF, expected RBRACE to close {context}")
 
         self.eat("RBRACE")
         return body
@@ -259,7 +311,7 @@ class Parser:
         token = self.current()
 
         if token is None:
-            raise SyntaxError("Unexpected EOF in expression")
+            raise self.error("Unexpected EOF in expression")
 
         if token.type == "NUMBER":
             return Number(int(self.eat("NUMBER").value))
@@ -298,6 +350,4 @@ class Parser:
 
             return ident
         else:
-            raise SyntaxError(
-                f"Unexpected token {token.type} in expression at position {self.pos}"
-            )
+            raise self.error(f"Unexpected token {token.type} in expression", token)

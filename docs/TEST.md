@@ -11,6 +11,7 @@ Test files are located in the `test/` directory with the `.gxc` extension:
 - `test/operators.gxc` - Arithmetic operators test
 - `test/comparison.gxc` - Comparison operators test
 - `test/function.gxc` - Function declaration and call test
+- `test/for_loop.gxc` - C-style `for` loop test
 - `test/cmd.gxc` - Command line arguments test
 - `test/if_elif_else.gxc` - Conditional statements test
 - `test/invalid/missing_main.gxc` - Top-level statements without `func main()`
@@ -45,21 +46,24 @@ GXC Compiler Test Runner
 Cleaning up old binaries...
 ✓ Cleaned up old binaries
 
-Found 6 valid test files:
+Found 7 valid test files:
   - cmd.gxc
   - comparison.gxc
+  - for_loop.gxc
   - function.gxc
   - hello.gxc
   - if_elif_else.gxc
   - operators.gxc
 
-Found 6 invalid syntax tests:
-  - invalid/missing_if_brace.gxc
-  - invalid/missing_func_brace.gxc
+Found 8 invalid syntax tests:
+  - invalid/for_post_declaration.gxc
   - invalid/missing_else_brace.gxc
-  - invalid/unterminated_block.gxc
-  - invalid/stray_closing_brace.gxc
+  - invalid/missing_for_semicolon.gxc
+  - invalid/missing_func_brace.gxc
+  - invalid/missing_if_brace.gxc
   - invalid/missing_main.gxc
+  - invalid/stray_closing_brace.gxc
+  - invalid/unterminated_block.gxc
 
 ----------------------------------------
 Testing: cmd
@@ -76,8 +80,8 @@ Testing: cmd
 ========================================
 Test Summary
 ========================================
-Total tests: 12
-Passed:      12
+Total tests: 15
+Passed:      15
 Failed:      0
 
 All tests passed! ✓
@@ -159,8 +163,10 @@ Current test coverage includes:
 - **Functions**: Function declarations and calls
 - **Command Line Arguments**: `argc`, `argv` handling
 - **Conditional Statements**: `if`, `elif`, `else`
+- **Loops**: `for` with init, condition, and post clauses
 - **Program Entry**: `func main() { ... }` required; no top-level statements
-- **Invalid Syntax**: Missing braces, unterminated blocks, stray tokens
+- **Invalid Syntax**: Missing braces, missing semicolons, unterminated blocks, stray tokens
+- **Error Handling**: Source-aware compile errors with line and column context
 
 ## Troubleshooting
 
@@ -170,6 +176,7 @@ If a test fails during GXC to C compilation:
 - Check syntax in the `.gxc` file
 - Verify all tokens are recognized by the lexer
 - Ensure AST nodes are properly defined
+- Error messages now include source, line, and column when available
 
 ### C Compilation Fails
 

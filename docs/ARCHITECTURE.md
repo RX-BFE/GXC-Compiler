@@ -5,6 +5,7 @@
 grc-compiler/
 ├── Compiler/
 │   ├── lex.py      # Lexer - tokenizes source code
+│   ├── errors.py   # Shared compiler error types
 │   ├── parser.py   # Parser - builds AST from tokens
 │   ├── nodes.py    # AST node definitions
 │   ├── c99.py      # Code generator - AST to C99
@@ -32,13 +33,13 @@ grc-compiler/
 ### 3. AST Representation (`nodes.py`)
 - Dataclass-based node definitions
 - Expression nodes: `Number`, `Identifier`, `BinaryOp`
-- Statement nodes: `Let`, `Assign`, `Print`, `If`, `Elif`, `Else`
+- Statement nodes: `Let`, `Assign`, `Print`, `If`, `Elif`, `Else`, `For`
 - Root node: `Program`
 
 ### 4. Code Generation (`c99.py`)
 - Input: AST from parser
 - Output: C99 source code
-- Generates complete C program with `main()` function
+- Generates complete C program with explicit `main()` entry point
 
 ## Testing
 

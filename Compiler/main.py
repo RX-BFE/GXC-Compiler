@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 
+from errors import CompileError
 from lex import lexer
 from parser import Parser
 from c99 import C99Codegen
@@ -18,11 +19,11 @@ def compile_file(source_path: Path) -> int:
         return 1
 
     try:
-        tokens = list(lexer(code))
+        tokens = list(lexer(code, source=str(source_path)))
         ast = Parser(tokens).parse()
         c_code = C99Codegen().generate(ast)
-    except SyntaxError as e:
-        print(f"Syntax Error: {e}")
+    except CompileError as e:
+        print(f"Error: {e}")
         return 1
     except Exception as e:
         print(f"Compilation Error: {e}")
