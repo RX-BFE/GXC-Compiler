@@ -1,10 +1,16 @@
 import sys
 from pathlib import Path
 
-from errors import CompileError
-from lex import lexer
-from parser import Parser
-from c99 import C99Codegen
+try:
+    from .errors import CompileError
+    from .lex import lexer
+    from .parser import Parser
+    from .c99 import C99Codegen
+except ImportError:  # pragma: no cover - direct script execution fallback
+    from errors import CompileError
+    from lex import lexer
+    from parser import Parser
+    from c99 import C99Codegen
 
 
 def compile_file(source_path: Path) -> int:
@@ -45,7 +51,7 @@ def main() -> int:
     """Main entry point. Returns exit code."""
     if len(sys.argv) != 2:
         print("Usage:")
-        print("    python main.py <file.gxc")
+        print("    gxc <file.gxc>")
         return 1
 
     source = Path(sys.argv[1])

@@ -1,25 +1,48 @@
 from typing import Set, List, Optional
-from errors import CodegenError
-from nodes import (
-    Program,
-    Let,
-    Assign,
-    Print,
-    FunctionDecl,
-    Return,
-    Number,
-    String,
-    Identifier,
-    BinaryOp,
-    Parenthesized,
-    FunctionCall,
-    Index,
-    Expression,
-    Statement,
-    If,
-    Elif,
-    For,
-)
+try:
+    from .errors import CodegenError
+    from .nodes import (
+        Program,
+        Let,
+        Assign,
+        Print,
+        FunctionDecl,
+        Return,
+        Number,
+        String,
+        Identifier,
+        BinaryOp,
+        Parenthesized,
+        FunctionCall,
+        Index,
+        Expression,
+        Statement,
+        If,
+        Elif,
+        For,
+    )
+except ImportError:  # pragma: no cover - direct script execution fallback
+    from errors import CodegenError
+    from nodes import (
+        Program,
+        Let,
+        Assign,
+        Print,
+        FunctionDecl,
+        Return,
+        Number,
+        String,
+        Identifier,
+        BinaryOp,
+        Parenthesized,
+        FunctionCall,
+        Index,
+        Expression,
+        Statement,
+        If,
+        Elif,
+        For,
+    )
 
 
 class C99Codegen:

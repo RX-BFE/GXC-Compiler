@@ -2,7 +2,10 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
-from errors import LexError
+try:
+    from .errors import LexError
+except ImportError:  # pragma: no cover - direct script execution fallback
+    from errors import LexError
 
 
 @dataclass

@@ -1,27 +1,52 @@
 from typing import List, Optional
-from lex import Token
-from errors import ParseError
-from nodes import (
-    Program,
-    Let,
-    Assign,
-    Print,
-    FunctionDecl,
-    Return,
-    Number,
-    String,
-    Identifier,
-    BinaryOp,
-    Parenthesized,
-    FunctionCall,
-    Index,
-    Expression,
-    Statement,
-    If,
-    Elif,
-    Else,
-    For,
-)
+try:
+    from .lex import Token
+    from .errors import ParseError
+    from .nodes import (
+        Program,
+        Let,
+        Assign,
+        Print,
+        FunctionDecl,
+        Return,
+        Number,
+        String,
+        Identifier,
+        BinaryOp,
+        Parenthesized,
+        FunctionCall,
+        Index,
+        Expression,
+        Statement,
+        If,
+        Elif,
+        Else,
+        For,
+    )
+except ImportError:  # pragma: no cover - direct script execution fallback
+    from lex import Token
+    from errors import ParseError
+    from nodes import (
+        Program,
+        Let,
+        Assign,
+        Print,
+        FunctionDecl,
+        Return,
+        Number,
+        String,
+        Identifier,
+        BinaryOp,
+        Parenthesized,
+        FunctionCall,
+        Index,
+        Expression,
+        Statement,
+        If,
+        Elif,
+        Else,
+        For,
+    )
 
 
 class Parser:

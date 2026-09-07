@@ -36,6 +36,13 @@ The project includes a Makefile-based automated test runner that:
 make test
 ```
 
+### Installing the CLI
+
+```bash
+uv sync
+uv run gxc test/hello.gxc
+```
+
 ### Example Output
 
 ```
