@@ -18,7 +18,7 @@ Test files are located in the `test/` directory with the `.gxc` extension:
 
 ## Automated Test Runner
 
-The project includes an automated test runner script (`test/run_tests.sh`) that:
+The project includes a Makefile-based automated test runner that:
 
 1. **Cleans up old binaries** - Removes previously compiled executables
 2. **Finds valid and invalid tests** - Scans `test/*.gxc` and `test/invalid/*.gxc`
@@ -32,8 +32,7 @@ The project includes an automated test runner script (`test/run_tests.sh`) that:
 ### Running All Tests
 
 ```bash
-cd test
-./run_tests.sh
+make test
 ```
 
 ### Example Output
@@ -84,6 +83,16 @@ Failed:      0
 All tests passed! ✓
 ```
 
+### Useful Targets
+
+```bash
+make test
+make test-valid
+make test-invalid
+make clean
+make list-tests
+```
+
 ## Manual Testing
 
 For manual testing of individual files:
@@ -129,8 +138,7 @@ To add a new test:
 3. The program must define `func main() { ... }` as the entry point
 4. Run the automated test runner to verify:
    ```bash
-   cd test
-   ./run_tests.sh
+   make test
    ```
 5. The new test will be automatically picked up and executed
 
@@ -195,8 +203,7 @@ The test runner script is designed to be easily integrated into CI/CD pipelines:
 
 ```bash
 # In CI pipeline
-cd test
-./run_tests.sh
+make test
 # Exit code 0 = all tests passed
 # Exit code 1 = some tests failed
 ```

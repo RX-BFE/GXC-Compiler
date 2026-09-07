@@ -11,9 +11,10 @@ grc-compiler/
 │   └── main.py     # Entry point
 ├── docs/
 │   └── ARCHITECTURE.md
+├── Makefile        # Build and test automation
 └── test/
     ├── *.gcx       # Test source files
-    └── run_tests.sh # Automated test runner script
+    └── invalid/    # Invalid syntax fixtures
 ```
 
 ## Compilation Pipeline
