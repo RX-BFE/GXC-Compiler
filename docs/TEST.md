@@ -194,12 +194,12 @@ The project uses GitHub Actions for automated testing. The CI/CD pipeline is def
 - Runs on every push to `master` and `if-else` branches
 - Runs on every pull request to `master` and `if-else` branches
 - Sets up Python 3.x and GCC in an Ubuntu environment
-- Executes the automated test runner script
+- Executes the `make test` target
 - Uploads generated C files as artifacts for debugging
 
 ### Manual CI Testing
 
-The test runner script is designed to be easily integrated into CI/CD pipelines:
+The Makefile target is designed to be easily integrated into CI/CD pipelines:
 
 ```bash
 # In CI pipeline
@@ -208,4 +208,4 @@ make test
 # Exit code 1 = some tests failed
 ```
 
-The script uses `set -e` to exit immediately on any error, making it suitable for automated testing environments.
+The Makefile uses shell `set -e` semantics inside its test targets so it exits immediately on any error, which makes it suitable for automated testing environments.
