@@ -13,18 +13,20 @@ Test files are located in the `test/` directory with the `.gxc` extension:
 - `test/function.gxc` - Function declaration and call test
 - `test/cmd.gxc` - Command line arguments test
 - `test/if_elif_else.gxc` - Conditional statements test
+- `test/invalid/*.gxc` - Invalid syntax tests that must fail compilation
 
 ## Automated Test Runner
 
 The project includes an automated test runner script (`test/run_tests.sh`) that:
 
 1. **Cleans up old binaries** - Removes previously compiled executables
-2. **Finds all test files** - Scans for `.gxc` files in the test directory
-3. **Compiles GXC to C** - Uses the compiler to convert `.gxc` files to `.c` files
-4. **Compiles C to binary** - Uses GCC to compile `.c` files to executables
-5. **Runs tests** - Executes each compiled binary
-6. **Reports results** - Displays pass/fail status for each test
-7. **Cleans up** - Removes binary files after testing
+2. **Finds valid and invalid tests** - Scans `test/*.gxc` and `test/invalid/*.gxc`
+3. **Compiles valid GXC to C** - Uses the compiler to convert `.gxc` files to `.c` files
+4. **Compiles generated C with GCC** - Ensures the emitted C99 code is valid
+5. **Runs valid binaries** - Executes each compiled binary
+6. **Checks invalid syntax** - Verifies rejected programs do not compile
+7. **Reports results** - Displays pass/fail status for every test
+8. **Cleans up** - Removes compiled binaries and any invalid-test C artifacts
 
 ### Running All Tests
 
@@ -43,13 +45,20 @@ GXC Compiler Test Runner
 Cleaning up old binaries...
 ✓ Cleaned up old binaries
 
-Found 6 test files:
+Found 6 valid test files:
   - cmd.gxc
   - comparison.gxc
   - function.gxc
   - hello.gxc
   - if_elif_else.gxc
   - operators.gxc
+
+Found 5 invalid syntax tests:
+  - invalid/missing_if_brace.gxc
+  - invalid/missing_func_brace.gxc
+  - invalid/missing_else_brace.gxc
+  - invalid/unterminated_block.gxc
+  - invalid/stray_closing_brace.gxc
 
 ----------------------------------------
 Testing: cmd
@@ -66,8 +75,8 @@ Testing: cmd
 ========================================
 Test Summary
 ========================================
-Total tests: 6
-Passed:      6
+Total tests: 11
+Passed:      11
 Failed:      0
 
 All tests passed! ✓
@@ -122,6 +131,12 @@ To add a new test:
    ```
 4. The new test will be automatically picked up and executed
 
+To add a new invalid syntax case:
+
+1. Create a new `.gxc` file in `test/invalid/`
+2. The file should contain code that must be rejected by the parser
+3. Run the automated test runner to verify the compiler returns an error
+
 ## Test Coverage
 
 Current test coverage includes:
@@ -133,6 +148,7 @@ Current test coverage includes:
 - **Functions**: Function declarations and calls
 - **Command Line Arguments**: `argc`, `argv` handling
 - **Conditional Statements**: `if`, `elif`, `else`
+- **Invalid Syntax**: Missing braces, unterminated blocks, stray tokens
 
 ## Troubleshooting
 

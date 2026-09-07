@@ -1,0 +1,2 @@
+func open(a) {
+    return a
