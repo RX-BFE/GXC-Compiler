@@ -185,7 +185,7 @@ If a test fails during GXC to C compilation:
 - Check syntax in the `.gxc` file
 - Verify all tokens are recognized by the lexer
 - Ensure AST nodes are properly defined
-- Error messages now include source, line, and column when available
+- Error messages now include source, line, and column when available, plus a short source snippet and caret when position data exists
 
 ### C Compilation Fails
 

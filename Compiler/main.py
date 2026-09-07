@@ -2,12 +2,12 @@ import sys
 from pathlib import Path
 
 try:
-    from .errors import CompileError
+    from .errors import CompileError, format_compile_error
     from .lex import lexer
     from .parser import Parser
     from .c99 import C99Codegen
 except ImportError:  # pragma: no cover - direct script execution fallback
-    from errors import CompileError
+    from errors import CompileError, format_compile_error
     from lex import lexer
     from parser import Parser
     from c99 import C99Codegen
@@ -29,7 +29,7 @@ def compile_file(source_path: Path) -> int:
         ast = Parser(tokens).parse()
         c_code = C99Codegen().generate(ast)
     except CompileError as e:
-        print(f"Error: {e}")
+        print(format_compile_error(e, code))
         return 1
     except Exception as e:
         print(f"Compilation Error: {e}")
