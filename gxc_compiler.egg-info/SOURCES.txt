@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+./Compiler/__init__.py
+./Compiler/__main__.py
+./Compiler/c99.py
+./Compiler/errors.py
+./Compiler/lex.py
+./Compiler/main.py
+./Compiler/nodes.py
+./Compiler/parser.py
+gxc_compiler.egg-info/PKG-INFO
+gxc_compiler.egg-info/SOURCES.txt
+gxc_compiler.egg-info/dependency_links.txt
+gxc_compiler.egg-info/entry_points.txt
+gxc_compiler.egg-info/top_level.txt

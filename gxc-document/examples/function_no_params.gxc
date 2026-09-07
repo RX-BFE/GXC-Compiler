@@ -1,0 +1,8 @@
+func get_value() {
+    return 42
+}
+
+func main() {
+    let x = get_value()
+    print(x)
+}

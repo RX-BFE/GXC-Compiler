@@ -1,0 +1,35 @@
+Metadata-Version: 2.4
+Name: gxc-compiler
+Version: 0.1.0
+Summary: GXC compiler and CLI
+Author: GXC Compiler Maintainers
+License: MIT
+Keywords: compiler,cli,gxc
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+
+# GXC Compiler
+
+GXC is a small compiler that translates `.gxc` source files into C99.
+
+## Install
+
+```bash
+uv sync
+uv sync --group dev
+```
+
+## CLI
+
+After installation, compile a file with:
+
+```bash
+uv run gxc path/to/file.gxc
+```
+
+## Test
+
+```bash
+make test
+make lint
+```

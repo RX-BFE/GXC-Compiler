@@ -1,0 +1,14 @@
+func multiply(x, y) {
+    return x * y
+}
+
+func divide(x, y) {
+    return x / y
+}
+
+func main() {
+    let a = multiply(6, 7)
+    let b = divide(20, 4)
+    print(a)
+    print(b)
+}

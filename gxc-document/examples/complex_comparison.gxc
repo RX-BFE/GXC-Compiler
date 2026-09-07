@@ -1,0 +1,9 @@
+func main() {
+    let x = 10
+    let y = 5
+
+    let g = (x + y) > 10
+    let h = x * 2 == 20
+    print(g)
+    print(h)
+}

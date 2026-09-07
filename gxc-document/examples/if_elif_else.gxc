@@ -1,0 +1,11 @@
+func main() {
+    let x = 15
+
+    if x > 10 {
+        print(1)
+    } elif x > 5 {
+        print(2)
+    } else {
+        print(3)
+    }
+}

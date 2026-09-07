@@ -1,0 +1,2 @@
+[console_scripts]
+gxc = Compiler.main:main

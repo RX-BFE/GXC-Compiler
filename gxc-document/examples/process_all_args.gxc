@@ -1,0 +1,9 @@
+func main() {
+    let arg_count = get_args()
+    let i = 0
+
+    for i = 0; i < arg_count; i = i + 1 {
+        let arg = args[i]
+        print(arg)
+    }
+}

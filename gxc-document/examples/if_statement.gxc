@@ -1,0 +1,7 @@
+func main() {
+    let x = 15
+
+    if x > 10 {
+        print(1)
+    }
+}

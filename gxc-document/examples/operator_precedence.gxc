@@ -1,0 +1,7 @@
+func main() {
+    let f = 10 + 5 * 2
+    let g = (10 + 5) * 2
+
+    print(f)
+    print(g)
+}
