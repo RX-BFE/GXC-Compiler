@@ -1,4 +1,6 @@
-let a = 10
-let b = 20
-hasil = a + b
-print(hasil)
+func main() {
+    let a = 10
+    let b = 20
+    hasil = a + b
+    print(hasil)
+}

@@ -1,2 +1,4 @@
-let arg_count = get_args()
-print(arg_count)
+func main() {
+    let arg_count = get_args()
+    print(arg_count)
+}

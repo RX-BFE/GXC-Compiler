@@ -13,6 +13,7 @@ Test files are located in the `test/` directory with the `.gxc` extension:
 - `test/function.gxc` - Function declaration and call test
 - `test/cmd.gxc` - Command line arguments test
 - `test/if_elif_else.gxc` - Conditional statements test
+- `test/invalid/missing_main.gxc` - Top-level statements without `func main()`
 - `test/invalid/*.gxc` - Invalid syntax tests that must fail compilation
 
 ## Automated Test Runner
@@ -53,12 +54,13 @@ Found 6 valid test files:
   - if_elif_else.gxc
   - operators.gxc
 
-Found 5 invalid syntax tests:
+Found 6 invalid syntax tests:
   - invalid/missing_if_brace.gxc
   - invalid/missing_func_brace.gxc
   - invalid/missing_else_brace.gxc
   - invalid/unterminated_block.gxc
   - invalid/stray_closing_brace.gxc
+  - invalid/missing_main.gxc
 
 ----------------------------------------
 Testing: cmd
@@ -75,8 +77,8 @@ Testing: cmd
 ========================================
 Test Summary
 ========================================
-Total tests: 11
-Passed:      11
+Total tests: 12
+Passed:      12
 Failed:      0
 
 All tests passed! ✓
@@ -124,12 +126,13 @@ To add a new test:
 
 1. Create a new `.gxc` file in the `test/` directory
 2. The test file should be a valid GXC program
-3. Run the automated test runner to verify:
+3. The program must define `func main() { ... }` as the entry point
+4. Run the automated test runner to verify:
    ```bash
    cd test
    ./run_tests.sh
    ```
-4. The new test will be automatically picked up and executed
+5. The new test will be automatically picked up and executed
 
 To add a new invalid syntax case:
 
@@ -148,6 +151,7 @@ Current test coverage includes:
 - **Functions**: Function declarations and calls
 - **Command Line Arguments**: `argc`, `argv` handling
 - **Conditional Statements**: `if`, `elif`, `else`
+- **Program Entry**: `func main() { ... }` required; no top-level statements
 - **Invalid Syntax**: Missing braces, unterminated blocks, stray tokens
 
 ## Troubleshooting

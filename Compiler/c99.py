@@ -34,7 +34,7 @@ class C99Codegen:
 
     def __init__(self) -> None:
         self.lines: List[str] = []
-        self.variables: Set[str] = set()
+        self.variables_stack: List[Set[str]] = []
 
     def emit(self, text: str) -> None:
         """Add a line to the generated code."""
@@ -42,26 +42,37 @@ class C99Codegen:
 
     def generate(self, program: Program) -> str:
         """Generate C99 code from the AST program."""
+        main_decl = None
+        helper_functions: List[FunctionDecl] = []
+
         self.emit(self.INCLUDE_STDIO)
         self.emit(self.INCLUDE_STDLIB)
         self.emit("")
 
-        # Generate function declarations first
         for stmt in program.body:
             if isinstance(stmt, FunctionDecl):
-                self._generate_function_decl(stmt)
+                if stmt.name == "main":
+                    if main_decl is not None:
+                        raise RuntimeError("Multiple main functions are not allowed")
+                    main_decl = stmt
+                else:
+                    helper_functions.append(stmt)
+            else:
+                raise RuntimeError(
+                    "Top-level statements are not allowed; expected only function declarations"
+                )
 
-        self.emit("")
-        self.emit(self.MAIN_SIGNATURE)
-        self.emit("{")
+        if main_decl is None:
+            raise RuntimeError("Program must define func main() { ... }")
 
-        # Generate non-function statements in main
-        for stmt in program.body:
-            if not isinstance(stmt, FunctionDecl):
-                self.statement(stmt)
+        for index, func in enumerate(helper_functions):
+            if index > 0:
+                self.emit("")
+            self._generate_function_decl(func)
 
-        self.emit(f"{self.INDENT}{self.RETURN_STATEMENT}")
-        self.emit("}")
+        if helper_functions:
+            self.emit("")
+        self._generate_main_decl(main_decl)
 
         return "\n".join(self.lines)
 
@@ -69,18 +80,51 @@ class C99Codegen:
 
     def _generate_function_decl(self, node: FunctionDecl) -> None:
         """Generate C function declaration."""
-        # Generate function signature
-        params_str = ", ".join(f"int {param}" for param in node.params)
-        self.emit(f"int {node.name}({params_str})")
-        self.emit("{")
+        self._push_scope()
+        try:
+            # Generate function signature
+            params_str = ", ".join(f"int {param}" for param in node.params)
+            self.emit(f"int {node.name}({params_str})")
+            self.emit("{")
 
-        # Generate function body
-        for stmt in node.body:
-            self.statement(stmt)
+            # Generate function body
+            for stmt in node.body:
+                self.statement(stmt)
 
-        self.emit("}")
+            self.emit("}")
+        finally:
+            self._pop_scope()
 
-    # -------------------------
+    def _generate_main_decl(self, node: FunctionDecl) -> None:
+        """Generate the explicit program entry point."""
+        self._push_scope()
+        try:
+            self.emit(self.MAIN_SIGNATURE)
+            self.emit("{")
+
+            for stmt in node.body:
+                self.statement(stmt)
+
+            self.emit(f"{self.INDENT}{self.RETURN_STATEMENT}")
+            self.emit("}")
+        finally:
+            self._pop_scope()
+
+    def _push_scope(self) -> None:
+        """Start a new variable scope."""
+        self.variables_stack.append(set())
+
+    def _pop_scope(self) -> None:
+        """End the current variable scope."""
+        if not self.variables_stack:
+            raise RuntimeError("Variable scope underflow")
+        self.variables_stack.pop()
+
+    def _current_variables(self) -> Set[str]:
+        """Get the current variable scope."""
+        if not self.variables_stack:
+            raise RuntimeError("No active variable scope")
+        return self.variables_stack[-1]
 
     def statement(self, node: Statement) -> None:
         """Generate C code for a statement node."""
@@ -89,7 +133,7 @@ class C99Codegen:
                 self._emit_variable_declaration(name, value, is_first_declaration=True)
 
             case Assign(name=name, value=value):
-                is_first = name not in self.variables
+                is_first = name not in self._current_variables()
                 self._emit_variable_declaration(
                     name, value, is_first_declaration=is_first
                 )
@@ -120,9 +164,10 @@ class C99Codegen:
     ) -> None:
         """Emit variable declaration or assignment based on whether it's first use."""
         expr = self.expression(value)
+        variables = self._current_variables()
 
         if is_first_declaration:
-            self.variables.add(name)
+            variables.add(name)
             self.emit(f"{self.INDENT}int {name} = {expr};")
         else:
             self.emit(f"{self.INDENT}{name} = {expr};")

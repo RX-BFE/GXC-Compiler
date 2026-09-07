@@ -2,5 +2,7 @@ func tambah(a, b) {
     return a + b
 }
 
-let result = tambah(10, 20)
-print(result)
+func main() {
+    let result = tambah(10, 20)
+    print(result)
+}

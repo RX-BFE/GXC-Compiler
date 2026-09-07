@@ -1,21 +1,23 @@
-let x = 10
-let y = 5
+func main() {
+    let x = 10
+    let y = 5
 
-let a = x > y
-let b = x == 10
-let c = x != y
-let d = x >= y
-let e = x <= 20
-let f = x < 100
+    let a = x > y
+    let b = x == 10
+    let c = x != y
+    let d = x >= y
+    let e = x <= 20
+    let f = x < 100
 
-print (a)
-print (b)
-print (c)
-print (d)
-print (e)
-print (f)
+    print (a)
+    print (b)
+    print (c)
+    print (d)
+    print (e)
+    print (f)
 
-let g = (x + y) > 10
-let h = x * 2 == 20
-print (g)
-print (h)
+    let g = (x + y) > 10
+    let h = x * 2 == 20
+    print (g)
+    print (h)
+}

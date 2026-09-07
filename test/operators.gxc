@@ -1,17 +1,19 @@
-let a = 10 + 5
-let b = 10 - 5
-let c = 10 * 5
-let d = 10 / 5
-let e = 10 % 3
+func main() {
+    let a = 10 + 5
+    let b = 10 - 5
+    let c = 10 * 5
+    let d = 10 / 5
+    let e = 10 % 3
 
-print(a)
-print(b)
-print(c)
-print(d)
-print(e)
+    print(a)
+    print(b)
+    print(c)
+    print(d)
+    print(e)
 
-let f = 10 + 5 * 2
-let g = (10 + 5) * 2
+    let f = 10 + 5 * 2
+    let g = (10 + 5) * 2
 
-print(f)
-print(g)
+    print(f)
+    print(g)
+}

@@ -64,8 +64,23 @@ class Parser:
         self.skip_newlines()
 
         while self.current():
-            body.append(self.statement())
+            token = self.current()
+            if token.type != "FUNC":
+                raise SyntaxError(
+                    f"Top-level statements are not allowed; expected FUNC, got {token.type} at position {self.pos}"
+                )
+
+            func_decl = self.func_declaration()
+            if func_decl.name == "main" and func_decl.params:
+                raise SyntaxError("main() must not take parameters")
+
+            body.append(func_decl)
             self.skip_newlines()
+
+        if not any(
+            isinstance(stmt, FunctionDecl) and stmt.name == "main" for stmt in body
+        ):
+            raise SyntaxError("Program must define func main() { ... }")
 
         return Program(body)
 
