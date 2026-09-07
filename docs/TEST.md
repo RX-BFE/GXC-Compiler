@@ -207,11 +207,12 @@ If a test compiles but fails during execution:
 
 The project uses GitHub Actions for automated testing. The CI/CD pipeline is defined in `.github/workflows/test.yml` and:
 
-- Runs on every push to `master` and `if-else` branches
-- Runs on every pull request to `master` and `if-else` branches
-- Sets up Python 3.x and GCC in an Ubuntu environment
-- Executes the `make test` target
-- Uploads generated C files as artifacts for debugging
+- Runs on every push to `master`
+- Runs on every pull request to `master`
+- Supports manual `workflow_dispatch` runs
+- Sets up Python 3.12 and GCC in an Ubuntu environment
+- Installs `uv`, syncs dev dependencies, then runs `make test`
+- Runs `make lint` as part of CI
 
 ### Manual CI Testing
 
